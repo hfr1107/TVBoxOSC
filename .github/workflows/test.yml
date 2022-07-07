@@ -67,7 +67,7 @@ jobs:
         if: ${{ env.commit }}
         with:
           name: com.github.tvboxhfr.osc
-          path: TVBoxOSC/apk/*
+          path: TVBoxOSC7.8/apk/*
       - name: Release and Upload Assets
         uses: softprops/action-gh-release@v1
         if: ${{ env.commit }}
@@ -76,19 +76,19 @@ jobs:
           tag_name: ${{ env.tag }}
           body: ${{ env.commit }}
           files: |
-            TVBoxOSC/apk/*
-            TVBoxOSC/${{ env.commitS }}-source.zip
+            TVBoxOSC7.8/apk/*
+            TVBoxOSC7.8/${{ env.commitS }}-source.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Post To Telegram
         if: ${{ env.commit }}
         run: |
           if [ -n "${{ secrets.CHANNEL_ID }}" ] && [ -n "${{ secrets.BOT_TOKEN }}" ]; then
-            OUTPUT="${{ github.workspace }}/TVBoxOSC/apk/"
+            OUTPUT="${{ github.workspace }}/TVBoxOSC7.8/apk/"
             export appRelease=$(find $OUTPUT -name "*release*.apk")
-            export sourceCode="${{ github.workspace }}/TVBoxOSC/${{ env.commitS }}-source.zip"
+            export sourceCode="${{ github.workspace }}/TVBoxOSC7.8/${{ env.commitS }}-source.zip"
             lastCommit=`git log --oneline |grep -o '[a-z0-9]\{40\}' |head -1`
-            cd TVBoxOSC
+            cd TVBoxOSC7.8
             export LESSCHARSET=utf-8
             if [ "${{ env.commit }}" == "${lastCommit}" ]; then
               COMMIT_MESSAGE="$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "`git log --pretty=format:%B ${{ env.commitS }} -1 |sed -e '/^Merge pull/d' -e '/^$/d' |sort -u`")"
@@ -106,7 +106,7 @@ jobs:
       - name: Push to master
         if: ${{ env.commit }}
         run: |
-          rm -rf TVBoxOSC
+          rm -rf TVBoxOSC7.8
           sed -i "/Updated Commit/c\\+ Updated Commit: ${{ env.commit }}" README.md
           sed -i '/url =/d' ./.git/config
           git config --local user.name "github-actions[bot]"
