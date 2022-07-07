@@ -29,7 +29,7 @@ jobs:
         if: ${{ env.commit }}
         run: |
           git clone ${{ env.upstreamCode }} TVBoxOSC7.8
-          cd TVBoxOSC
+          cd TVBoxOSC7.8
           git checkout ${{ env.commit }}
           echo "tag=$(git log --date=format:'%Y%m%d-%H%M' --pretty=format:%cd ${{ env.commitS }} -1)" >> $GITHUB_ENV
           zip -q -x ".git/*" -r ${{ env.commitS }}-source.zip .
