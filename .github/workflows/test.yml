@@ -18,9 +18,9 @@ jobs:
           fetch-depth: 0
       - name: Check New Commit
         run: |
-          upstreamCode=https://github.com/hfr1107/HomeTV7.29
+          upstreamCode=https://github.com/hfr1107/Hometv1.0.0
           echo "upstreamCode=$upstreamCode" >> $GITHUB_ENV
-          commit=$(curl -sL $upstreamCode/commits/main |grep -o '/hfr1107/HomeTV7.29/commit/[a-z0-9]\+' |head -1 | cut -d\/ -f5)
+          commit=$(curl -sL $upstreamCode/commits/main |grep -o '/hfr1107/Hometv1.0.0/commit/[a-z0-9]\+' |head -1 | cut -d\/ -f5)
           if ! git log --oneline |grep -q "$commit"; then
             echo "commit=$commit" >> $GITHUB_ENV
             echo "commitS=${commit:0:7}" >> $GITHUB_ENV
@@ -28,14 +28,14 @@ jobs:
       - name: Checkout Source Code and Zip
         if: ${{ env.commit }}
         run: |
-          git clone ${{ env.upstreamCode }} HomeTV7.29
-          cd HomeTV7.29
+          git clone ${{ env.upstreamCode }} Hometv1.0.0
+          cd Hometv1.0.0
           git checkout ${{ env.commit }}
           echo "tag=$(git log --date=format:'%Y%m%d-%H%M' --pretty=format:%cd ${{ env.commitS }} -1)" >> $GITHUB_ENV
           zip -q -x ".git/*" -r ${{ env.commitS }}-source.zip .
       - name: Release Apk Sign
         if: ${{ env.commit }}
-        working-directory: HomeTV7.29
+        working-directory: Hometv1.0.0
         run: |
           signingConfigs='ICAgIHNpZ25pbmdDb25maWdzIHtcCiAgICAgICAgaWYgKHByb2plY3QuaGFzUHJvcGVydHkoIlJFTEVBU0VfU1RPUkVfRklMRSIpKSB7XAogICAgICAgICAgICBteUNvbmZpZyB7XAogICAgICAgICAgICAgICAgc3RvcmVGaWxlIGZpbGUoUkVMRUFTRV9TVE9SRV9GSUxFKVwKICAgICAgICAgICAgICAgIHN0b3JlUGFzc3dvcmQgUkVMRUFTRV9TVE9SRV9QQVNTV09SRFwKICAgICAgICAgICAgICAgIGtleUFsaWFzIFJFTEVBU0VfS0VZX0FMSUFTXAogICAgICAgICAgICAgICAga2V5UGFzc3dvcmQgUkVMRUFTRV9LRVlfUEFTU1dPUkRcCiAgICAgICAgICAgICAgICB2MVNpZ25pbmdFbmFibGVkIHRydWVcCiAgICAgICAgICAgICAgICB2MlNpZ25pbmdFbmFibGVkIHRydWVcCiAgICAgICAgICAgICAgICBlbmFibGVWM1NpZ25pbmcgPSB0cnVlXAogICAgICAgICAgICAgICAgZW5hYmxlVjRTaWduaW5nID0gdHJ1ZVwKICAgICAgICAgICAgfVwKICAgICAgICB9XAogICAgfVwKXA=='
           signingConfig='ICAgICAgICAgICAgaWYgKHByb2plY3QuaGFzUHJvcGVydHkoIlJFTEVBU0VfU1RPUkVfRklMRSIpKSB7XAogICAgICAgICAgICAgICAgc2lnbmluZ0NvbmZpZyBzaWduaW5nQ29uZmlncy5teUNvbmZpZ1wKICAgICAgICAgICAgfVwK'
@@ -49,13 +49,13 @@ jobs:
           sed -i '$a\RELEASE_KEY_PASSWORD=TVBoxOSC'         ./gradle.properties
       - name: Build With Gradle
         if: ${{ env.commit }}
-        working-directory: HomeTV7.29
+        working-directory: Hometv1.0.0
         run: |
           chmod +x gradlew
           ./gradlew assemblerelease --build-cache --parallel --daemon --warning-mode all
       - name: Prepare App
         if: ${{ env.commit }}
-        working-directory: HomeTV7.29
+        working-directory: Hometv1.0.0
         run: |
           rm -rf apk/
           mkdir -p apk/
@@ -67,7 +67,7 @@ jobs:
         if: ${{ env.commit }}
         with:
           name: com.github.tvboxhfr.osc
-          path: HomeTV7.29/apk/*
+          path: Hometv1.0.0/apk/*
       - name: Release and Upload Assets
         uses: softprops/action-gh-release@v1
         if: ${{ env.commit }}
@@ -76,19 +76,19 @@ jobs:
           tag_name: ${{ env.tag }}
           body: ${{ env.commit }}
           files: |
-            HomeTV7.29/apk/*
-            HomeTV7.29/${{ env.commitS }}-source.zip
+            Hometv1.0.0/apk/*
+            Hometv1.0.0/${{ env.commitS }}-source.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Post To Telegram
         if: ${{ env.commit }}
         run: |
           if [ -n "${{ secrets.CHANNEL_ID }}" ] && [ -n "${{ secrets.BOT_TOKEN }}" ]; then
-            OUTPUT="${{ github.workspace }}/HomeTV7.29/apk/"
+            OUTPUT="${{ github.workspace }}/Hometv1.0.0/apk/"
             export appRelease=$(find $OUTPUT -name "*release*.apk")
-            export sourceCode="${{ github.workspace }}/HomeTV7.29/${{ env.commitS }}-source.zip"
+            export sourceCode="${{ github.workspace }}/Hometv1.0.0/${{ env.commitS }}-source.zip"
             lastCommit=`git log --oneline |grep -o '[a-z0-9]\{40\}' |head -1`
-            cd HomeTV7.29
+            cd Hometv1.0.0
             export LESSCHARSET=utf-8
             if [ "${{ env.commit }}" == "${lastCommit}" ]; then
               COMMIT_MESSAGE="$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "`git log --pretty=format:%B ${{ env.commitS }} -1 |sed -e '/^Merge pull/d' -e '/^$/d' |sort -u`")"
@@ -106,7 +106,7 @@ jobs:
       - name: Push to master
         if: ${{ env.commit }}
         run: |
-          rm -rf HomeTV7.29
+          rm -rf Hometv1.0.0
           sed -i "/Updated Commit/c\\+ Updated Commit: ${{ env.commit }}" README.md
           sed -i '/url =/d' ./.git/config
           git config --local user.name "github-actions[bot]"
