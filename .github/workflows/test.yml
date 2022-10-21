@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
       - name: Check New Commit
         run: |
-          upstreamCode=https://github.com/hfr1107/mayishidai
+          upstreamCode=https://github.com/hfr1107/mayshidai
           echo "upstreamCode=$upstreamCode" >> $GITHUB_ENV
           commit=$(curl -sL $upstreamCode/commits/main |grep -o '/hfr1107/mayishidai/commit/[a-z0-9]\+' |head -1 | cut -d\/ -f5)
           if ! git log --oneline |grep -q "$commit"; then
